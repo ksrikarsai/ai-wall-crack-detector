@@ -1,0 +1,1 @@
+# ai-wall-crack-detector
