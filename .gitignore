@@ -5,6 +5,4 @@ train/
 test/
 validation/
 
-wall_crack_model.h5
-
 .vscode/
