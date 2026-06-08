@@ -1,0 +1,478 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Wall Crack Detection AI</title>
+    <!-- Use a modern Google font -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;800&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-color: #fafafa;
+            --text-main: #1a1a24;
+            --text-muted: #6b6b7b;
+            --accent-1: #c6a9ff; /* Lavender */
+            --accent-2: #ffb8d1; /* Soft Pink */
+            --accent-3: #92e8e3; /* Cyan/Teal */
+            --glass-bg: rgba(255, 255, 255, 0.6);
+            --glass-border: rgba(255, 255, 255, 0.4);
+            --button-bg: #1a1a24;
+            --button-text: #ffffff;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Outfit', sans-serif;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-main);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            overflow-x: hidden;
+            position: relative;
+        }
+
+        /* Abstract Gradient Orbs */
+        .orb {
+            position: absolute;
+            border-radius: 50%;
+            filter: blur(80px);
+            opacity: 0.6;
+            z-index: -1;
+            animation: float 20s infinite ease-in-out alternate;
+        }
+        
+        .orb-1 {
+            width: 500px;
+            height: 500px;
+            background: var(--accent-1);
+            top: -100px;
+            left: -150px;
+        }
+        
+        .orb-2 {
+            width: 400px;
+            height: 400px;
+            background: var(--accent-2);
+            bottom: 10%;
+            right: -100px;
+            animation-delay: -5s;
+        }
+
+        .orb-3 {
+            width: 600px;
+            height: 600px;
+            background: var(--accent-3);
+            bottom: -200px;
+            left: 20%;
+            animation-delay: -10s;
+        }
+
+        @keyframes float {
+            0% { transform: translate(0, 0) scale(1); }
+            50% { transform: translate(50px, -50px) scale(1.1); }
+            100% { transform: translate(-30px, 30px) scale(0.9); }
+        }
+
+        /* Navbar */
+        nav {
+            width: 100%;
+            padding: 24px 48px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            z-index: 10;
+        }
+
+        .logo {
+            font-size: 24px;
+            font-weight: 800;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            cursor: pointer;
+        }
+        
+        .logo-icon {
+            width: 24px;
+            height: 24px;
+            background: linear-gradient(135deg, var(--accent-1), var(--accent-3));
+            border-radius: 4px;
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 32px;
+            align-items: center;
+        }
+
+        .nav-link {
+            text-decoration: none;
+            color: var(--text-main);
+            font-weight: 400;
+            transition: opacity 0.3s ease;
+        }
+
+        .nav-link:hover {
+            opacity: 0.6;
+        }
+
+        /* Hero Section */
+        main {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 40px 20px;
+            text-align: center;
+            z-index: 10;
+            margin-top: -60px;
+        }
+
+        .badge {
+            font-size: 14px;
+            font-weight: 600;
+            background: linear-gradient(90deg, rgba(198,169,255,0.2) 0%, rgba(146,232,227,0.2) 100%);
+            padding: 6px 16px;
+            border-radius: 100px;
+            margin-bottom: 24px;
+            color: #5a4b81;
+            border: 1px solid rgba(198,169,255,0.4);
+        }
+
+        h1 {
+            font-size: 4.5rem;
+            line-height: 1.1;
+            font-weight: 400;
+            max-width: 800px;
+            margin-bottom: 24px;
+            letter-spacing: -1px;
+        }
+
+        p.subtitle {
+            font-size: 1.2rem;
+            color: var(--text-muted);
+            margin-bottom: 48px;
+            max-width: 600px;
+            font-weight: 300;
+        }
+
+        /* Glass Card for Upload */
+        .upload-card {
+            background: var(--glass-bg);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border: 1px solid var(--glass-border);
+            border-radius: 32px;
+            padding: 40px;
+            width: 100%;
+            max-width: 500px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.03);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .upload-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 30px 60px rgba(0,0,0,0.05);
+        }
+
+        .upload-area {
+            border: 2px dashed rgba(26, 26, 36, 0.2);
+            border-radius: 20px;
+            padding: 40px 20px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 16px;
+        }
+
+        .upload-area:hover, .upload-area.dragover {
+            background: rgba(255, 255, 255, 0.5);
+            border-color: var(--accent-1);
+        }
+
+        .upload-icon {
+            width: 48px;
+            height: 48px;
+            background: var(--bg-color);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+        }
+
+        input[type="file"] {
+            display: none;
+        }
+
+        .btn-primary {
+            background-color: var(--button-bg);
+            color: var(--button-text);
+            border: none;
+            padding: 16px 32px;
+            border-radius: 100px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background-color 0.3s ease, transform 0.2s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            margin-top: 24px;
+        }
+
+        .btn-primary:hover {
+            background-color: #333342;
+            transform: scale(1.02);
+        }
+
+        /* Result Section */
+        #result-container {
+            display: none;
+            margin-top: 32px;
+            animation: fadeIn 0.5s ease forwards;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .image-preview {
+            width: 100%;
+            height: 200px;
+            border-radius: 16px;
+            object-fit: cover;
+            margin-bottom: 24px;
+            box-shadow: 0 8px 24px rgba(0,0,0,0.1);
+        }
+
+        .prediction-result {
+            font-size: 2rem;
+            font-weight: 600;
+            margin-bottom: 8px;
+        }
+
+        .prediction-score {
+            font-size: 1rem;
+            color: var(--text-muted);
+        }
+
+        .status-crack { color: #ff6b6b; }
+        .status-nocrack { color: #20c997; }
+
+        /* Loading Spinner */
+        .loader {
+            display: none;
+            width: 48px;
+            height: 48px;
+            border: 4px solid rgba(198,169,255,0.3);
+            border-radius: 50%;
+            border-top-color: var(--accent-1);
+            animation: spin 1s ease-in-out infinite;
+            margin: 0 auto;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        /* Footer */
+        footer {
+            padding: 24px;
+            text-align: center;
+            color: var(--text-muted);
+            font-size: 14px;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Background Orbs -->
+    <div class="orb orb-1"></div>
+    <div class="orb orb-2"></div>
+    <div class="orb orb-3"></div>
+
+    <nav>
+        <div class="logo">
+            <div class="logo-icon"></div>
+            Handhold AI
+        </div>
+        <div class="nav-links">
+            <a href="#" class="nav-link">Resources</a>
+            <a href="#" class="nav-link">Log in</a>
+            <button class="btn-primary" style="padding: 10px 20px; margin: 0; font-size: 14px;">Get started</button>
+        </div>
+    </nav>
+
+    <main>
+        <div class="badge">AI Vision Demo</div>
+        <h1>A dedicated guide for<br>every structure</h1>
+        <p class="subtitle">Upload images of walls or surfaces. Our AI agent will run a tailored deep-dive session to detect structural cracks instantly.</p>
+
+        <div class="upload-card">
+            <div id="upload-section">
+                <div class="upload-area" id="drop-zone">
+                    <div class="upload-icon">📷</div>
+                    <h3 style="font-weight: 600;">Drag & drop an image</h3>
+                    <p style="color: var(--text-muted); font-size: 14px;">or click to browse your files</p>
+                </div>
+                <input type="file" id="file-input" accept="image/jpeg, image/png, image/jpg">
+                <button class="btn-primary" id="start-demo-btn">
+                    <span style="font-size: 18px;">✨</span> Start demo
+                </button>
+            </div>
+
+            <div class="loader" id="loader"></div>
+
+            <div id="result-container">
+                <img id="preview-img" class="image-preview" src="" alt="Uploaded image preview">
+                <div id="prediction-text" class="prediction-result">Analyzing...</div>
+                <div id="score-text" class="prediction-score"></div>
+                <button class="btn-primary" id="reset-btn" style="margin-top: 24px; background: rgba(26, 26, 36, 0.05); color: var(--text-main);">
+                    Analyze another image
+                </button>
+            </div>
+        </div>
+    </main>
+
+    <script>
+        const dropZone = document.getElementById('drop-zone');
+        const fileInput = document.getElementById('file-input');
+        const startDemoBtn = document.getElementById('start-demo-btn');
+        
+        const uploadSection = document.getElementById('upload-section');
+        const loader = document.getElementById('loader');
+        const resultContainer = document.getElementById('result-container');
+        
+        const previewImg = document.getElementById('preview-img');
+        const predictionText = document.getElementById('prediction-text');
+        const scoreText = document.getElementById('score-text');
+        const resetBtn = document.getElementById('reset-btn');
+
+        let selectedFile = null;
+
+        // Click to upload
+        dropZone.addEventListener('click', () => fileInput.click());
+
+        // File selection
+        fileInput.addEventListener('change', (e) => {
+            if (e.target.files.length > 0) {
+                handleFile(e.target.files[0]);
+            }
+        });
+
+        // Drag and drop
+        dropZone.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            dropZone.classList.add('dragover');
+        });
+
+        dropZone.addEventListener('dragleave', () => {
+            dropZone.classList.remove('dragover');
+        });
+
+        dropZone.addEventListener('drop', (e) => {
+            e.preventDefault();
+            dropZone.classList.remove('dragover');
+            if (e.dataTransfer.files.length > 0) {
+                handleFile(e.dataTransfer.files[0]);
+            }
+        });
+
+        function handleFile(file) {
+            selectedFile = file;
+            // Visual feedback
+            dropZone.innerHTML = `
+                <div class="upload-icon" style="background: var(--accent-1); color: white;">✓</div>
+                <h3 style="font-weight: 600;">${file.name} selected</h3>
+                <p style="color: var(--text-muted); font-size: 14px;">Ready to run demo</p>
+            `;
+            
+            // Show preview
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                previewImg.src = e.target.result;
+            }
+            reader.readAsDataURL(file);
+        }
+
+        startDemoBtn.addEventListener('click', async () => {
+            if (!selectedFile) {
+                alert("Please select an image first.");
+                return;
+            }
+
+            // Show loader
+            uploadSection.style.display = 'none';
+            loader.style.display = 'block';
+
+            const formData = new FormData();
+            formData.append('file', selectedFile);
+
+            try {
+                const response = await fetch('/predict', {
+                    method: 'POST',
+                    body: formData
+                });
+                
+                const data = await response.json();
+                
+                // Hide loader, show result
+                loader.style.display = 'none';
+                resultContainer.style.display = 'block';
+
+                if (response.ok) {
+                    predictionText.innerText = data.prediction;
+                    scoreText.innerText = `Confidence Score: ${data.score.toFixed(4)}`;
+                    
+                    if (data.prediction === "No Crack") {
+                        predictionText.className = 'prediction-result status-nocrack';
+                    } else {
+                        predictionText.className = 'prediction-result status-crack';
+                    }
+                } else {
+                    predictionText.innerText = "Error analyzing image";
+                    scoreText.innerText = data.error || "Unknown error occurred";
+                    predictionText.className = 'prediction-result status-crack';
+                }
+                
+            } catch (error) {
+                loader.style.display = 'none';
+                resultContainer.style.display = 'block';
+                predictionText.innerText = "Network Error";
+                scoreText.innerText = error.message;
+                predictionText.className = 'prediction-result status-crack';
+            }
+        });
+
+        resetBtn.addEventListener('click', () => {
+            selectedFile = null;
+            fileInput.value = '';
+            dropZone.innerHTML = `
+                <div class="upload-icon">📷</div>
+                <h3 style="font-weight: 600;">Drag & drop an image</h3>
+                <p style="color: var(--text-muted); font-size: 14px;">or click to browse your files</p>
+            `;
+            resultContainer.style.display = 'none';
+            uploadSection.style.display = 'block';
+        });
+
+    </script>
+</body>
+</html>
